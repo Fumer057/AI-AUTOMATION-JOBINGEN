@@ -1,0 +1,79 @@
+[
+  {
+    "topic_id": "edu_001",
+    "pillar": "Educate",
+    "topic_title": "ATS-Friendly Resume Blueprint",
+    "topic_context": "Explain how Applicant Tracking Systems parse resumes. Give actionable rules: no columns, standard fonts (Inter, Arial), use exact keywords from the job description, and save as PDF. Standard section naming (Experience, Skills, Education) is crucial.",
+    "suggested_template": "carousel"
+  },
+  {
+    "topic_id": "edu_002",
+    "pillar": "Educate",
+    "topic_title": "The 3-Line Cold Email Formula",
+    "topic_context": "Provide a clean email template for outreach. Line 1: The Context (how you found them). Line 2: The Value (what you noticed/what you can do). Line 3: The Low-friction CTA (asking for a 10-minute chat next Thursday, not asking for a job).",
+    "suggested_template": "carousel"
+  },
+  {
+    "topic_id": "edu_003",
+    "pillar": "Educate",
+    "topic_title": "LinkedIn Profile Optimization Checklist",
+    "topic_context": "Highlight 4 critical profile sections: Headline (role + value proposition, not just 'Student'), About (career narrative), Experience (quantified impact), and Featured (projects/portfolio).",
+    "suggested_template": "insight_card"
+  },
+  {
+    "topic_id": "opp_001",
+    "pillar": "Opportunity",
+    "topic_title": "Software Engineering Internship Openings",
+    "topic_context": "Announce that applications for top-tier tech winter/summer internships are open. Focus on pre-requisites: strong DSA foundations, at least 2 complete projects, and a clean GitHub profile.",
+    "suggested_template": "job_drop"
+  },
+  {
+    "topic_id": "opp_002",
+    "pillar": "Opportunity",
+    "topic_title": "Product Management Associate Roles",
+    "topic_context": "Share open APM opportunities for new graduates. Mention key skills: product teardowns, basic SQL, analytics, and exceptional communication. Frame it as the perfect entry point into tech leadership.",
+    "suggested_template": "job_drop"
+  },
+  {
+    "topic_id": "pro_001",
+    "pillar": "Proof",
+    "topic_title": "Landed Google SDE Role in 3 Months",
+    "topic_context": "Success story of a student named Aryan who used JobInGen resources. Detail his path: 200 LeetCode questions, resume refinement, mock interview prep, and direct cold outreach.",
+    "suggested_template": "success_story"
+  },
+  {
+    "topic_id": "pro_002",
+    "pillar": "Proof",
+    "topic_title": "Non-CS Student Transition to Data Analyst",
+    "topic_context": "Success story of Priya, a mechanical engineering graduate who landed a Data Analyst position at a fintech company. Detail how she built SQL/Tableau projects to prove her skills.",
+    "suggested_template": "success_story"
+  },
+  {
+    "topic_id": "bra_001",
+    "pillar": "Brand",
+    "topic_title": "Why We Built JobInGen",
+    "topic_context": "Our founding story. Traditional placements are broken; students send 500 resumes with 0 replies. JobInGen is designed to teach students how to build networks and proof-of-work instead of relying on luck.",
+    "suggested_template": "insight_card"
+  },
+  {
+    "topic_id": "bra_002",
+    "pillar": "Brand",
+    "topic_title": "Skills Over Degrees",
+    "topic_context": "Explain the core philosophy of JobInGen. A degree gets you in the room, but proof-of-work (projects, open source, write-ups) gets you hired. Build in public to stand out.",
+    "suggested_template": "carousel"
+  },
+  {
+    "topic_id": "cul_001",
+    "pillar": "Culture",
+    "topic_title": "Day in the Life of a remote SDE",
+    "topic_context": "A realistic look at working remotely. Focus on asynchronous communication, standup meetings, documentation, and the importance of work-life boundaries (shutting down at 6 PM).",
+    "suggested_template": "meme"
+  },
+  {
+    "topic_id": "cul_002",
+    "pillar": "Culture",
+    "topic_title": "Campus to Corporate Shock",
+    "topic_context": "Highlight the common surprises graduates face: nobody tells you exactly what to do, meetings are about alignment rather than lecturing, and soft skills (empathy, writing) matter as much as technical ones.",
+    "suggested_template": "comparison"
+  }
+]

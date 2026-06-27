@@ -1,0 +1,29 @@
+[
+  {
+    "job_id": "job_001",
+    "company": "Amazon",
+    "role": "Software Development Engineer Intern",
+    "location": "Bangalore / Hybrid",
+    "link": "https://amazon.jobs/en/jobs/12345",
+    "posted_date": "2026-06-25",
+    "featured": true
+  },
+  {
+    "job_id": "job_002",
+    "company": "Google",
+    "role": "Associate Product Manager",
+    "location": "Hyderabad / Office",
+    "link": "https://careers.google.com/jobs/67890",
+    "posted_date": "2026-06-26",
+    "featured": true
+  },
+  {
+    "job_id": "job_003",
+    "company": "Microsoft",
+    "role": "Data Analyst Intern",
+    "location": "Noida / Remote",
+    "link": "https://careers.microsoft.com/jobs/54321",
+    "posted_date": "2026-06-27",
+    "featured": false
+  }
+]

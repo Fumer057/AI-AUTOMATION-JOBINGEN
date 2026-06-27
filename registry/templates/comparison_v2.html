@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Comparison - {{ spec.template_version }}</title>
+    <link rel="stylesheet" href="base.css">
+    <style>
+        :root {
+            --primary: {{ spec.brand_colors.primary }};
+            --accent: {{ spec.brand_colors.accent }};
+            --bg-dark: {{ spec.brand_colors.bg_dark }};
+            --text-main: {{ spec.brand_colors.text }};
+            --white: {{ spec.brand_colors.white }};
+            --font-heading: '{{ spec.font_family }}', sans-serif;
+            --danger: #FF4B4B;
+            --success: #00D26A;
+        }
+
+        body {
+            padding: 0; margin: 0;
+            background-color: #000;
+            display: flex; justify-content: center;
+        }
+
+        .slide {
+            width: {{ spec.dimensions.width }}px;
+            height: {{ spec.dimensions.height }}px;
+            background-color: var(--bg-dark);
+            position: relative;
+            box-sizing: border-box;
+            padding: 100px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .col {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            position: relative;
+        }
+        
+        .col.dont { border-top: 6px solid var(--danger); }
+        .col.do { border-top: 6px solid var(--success); }
+        
+        .col-header {
+            font-family: var(--font-heading);
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .dont .col-header { color: var(--danger); }
+        .do .col-header { color: var(--success); }
+        
+        /* Assuming the LLM splits the body using some delimiter like "VS" or we just render the raw text. 
+           Since slide format only has heading and body, we will just render them in a visually pleasing way. */
+    </style>
+</head>
+<body>
+
+    {% set slide = spec.slides[0] %}
+    <div class="slide" id="slide-1">
+        
+        <div class="slide-header">
+            {% if spec.logo_path %}
+                <img src="file://{{ spec.logo_path }}" alt="Logo" class="brand-logo">
+            {% else %}
+                <div class="brand-logo" style="color:white; font-size: 32px; font-weight:bold;">JobInGen</div>
+            {% endif %}
+        </div>
+
+        <h1 class="heading-xl text-gradient animate-fade-up">{{ slide.heading }}</h1>
+        
+        <!-- Normally comparison has specific fields, but using our standard SlideRenderData we can format the body creatively -->
+        <div class="comparison-grid animate-fade-up" style="animation-delay: 0.2s;">
+            <div class="col dont">
+                <div class="col-header">
+                    <span>❌</span> Instead of this...
+                </div>
+                <!-- Hacky visual parsing if the LLM didn't format specifically -->
+                <p class="body-text" style="opacity: 0.7;">Generic approach</p>
+            </div>
+            
+            <div class="col do">
+                <div class="col-header">
+                    <span>✅</span> Do this...
+                </div>
+                <p class="body-text">{{ slide.body }}</p>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <span class="footer-text">Level up your game</span>
+            <span class="footer-handle">@JobInGen</span>
+        </div>
+        
+    </div>
+
+</body>
+</html>

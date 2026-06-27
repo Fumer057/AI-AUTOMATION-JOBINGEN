@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Meme - {{ spec.template_version }}</title>
+    <link rel="stylesheet" href="base.css">
+    <style>
+        :root {
+            --primary: {{ spec.brand_colors.primary }};
+            --accent: {{ spec.brand_colors.accent }};
+            --bg-dark: {{ spec.brand_colors.bg_dark }};
+            --text-main: {{ spec.brand_colors.text }};
+            --white: {{ spec.brand_colors.white }};
+            --font-heading: '{{ spec.font_family }}', sans-serif;
+        }
+
+        body {
+            padding: 0; margin: 0; background-color: #000;
+            display: flex; justify-content: center;
+        }
+
+        .slide {
+            width: {{ spec.dimensions.width }}px;
+            height: {{ spec.dimensions.height }}px;
+            background-color: var(--white); /* Memes often look better on white/light bg */
+            color: #111;
+            position: relative; box-sizing: border-box;
+            padding: 100px 80px;
+            display: flex; flex-direction: column; justify-content: flex-start;
+            text-align: center;
+        }
+
+        .tweet-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            text-align: left;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
+            margin-top: 100px;
+        }
+
+        .tweet-header {
+            display: flex; align-items: center; gap: 16px; margin-bottom: 24px;
+        }
+
+        .tweet-avatar {
+            width: 64px; height: 64px; border-radius: 50%; background: var(--primary);
+        }
+
+        .tweet-name {
+            font-family: var(--font-heading); font-size: 24px; font-weight: 700; color: #111;
+        }
+
+        .tweet-handle { font-size: 20px; color: #666; }
+
+        .tweet-body {
+            font-size: 36px; line-height: 1.4; color: #111; font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    {% set slide = spec.slides[0] %}
+    <div class="slide" id="slide-1">
+        
+        <div class="tweet-card animate-fade-up">
+            <div class="tweet-header">
+                <div class="tweet-avatar"></div>
+                <div>
+                    <div class="tweet-name">JobInGen Community</div>
+                    <div class="tweet-handle">@JobInGen</div>
+                </div>
+            </div>
+            <div class="tweet-body">
+                {{ slide.body }}
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

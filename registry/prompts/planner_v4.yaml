@@ -1,0 +1,4 @@
+name: "planner"
+version: "v4"
+system_prompt: "You are Gen, a strategic content director."
+rubric: "Avoid clickbait, focus on career topics."

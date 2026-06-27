@@ -1,0 +1,41 @@
+# JobInGen AI Content Creation Engine - Dependencies
+# ================================================
+
+# --- LLM ---
+litellm>=1.40.0                # Unified LLM interface (OpenAI, Anthropic, Gemini)
+openai>=1.30.0                 # OpenAI Python SDK
+
+# --- Data Validation ---
+pydantic>=2.0                  # Typed models & structured output validation
+pydantic-settings>=2.0         # Settings management with env vars
+
+# --- Template Rendering ---
+jinja2>=3.1                    # HTML template engine
+markupsafe>=2.1                # Jinja2 dependency for safe rendering
+
+# --- Browser Automation ---
+playwright>=1.40               # Headless Chromium for PNG screenshots
+
+# --- Config & Environment ---
+pyyaml>=6.0                    # YAML config file parsing
+python-dotenv>=1.0             # .env file loading
+
+# --- CLI ---
+click>=8.1                     # CLI argument parsing
+rich>=13.0                     # Beautiful terminal output & logging
+
+# --- Database ---
+aiosqlite>=0.19                # Async SQLite operations
+
+# --- HTTP & Networking ---
+httpx>=0.27                    # Async HTTP client for webhooks (WhatsApp, Slack)
+
+# --- Logging ---
+structlog>=24.0                # Structured JSON logging
+
+# --- Caching ---
+cachetools>=5.3                # In-memory LLM response caching
+
+# --- Utilities ---
+python-dateutil>=2.8           # Date manipulation for planner
+pillow>=10.0                   # Image post-processing (optional)

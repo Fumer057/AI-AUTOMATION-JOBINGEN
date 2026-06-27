@@ -1,0 +1,13 @@
+# .env
+*.pyc
+__pycache__/
+venv/
+.venv/
+data/*.db
+output/
+logs/
+.DS_Store
+Thumbs.db
+*.egg-info/
+dist/
+build/

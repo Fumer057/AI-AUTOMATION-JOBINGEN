@@ -1,0 +1,16 @@
+[
+  {
+    "testimonial_id": "testi_001",
+    "name": "Aryan Sharma",
+    "quote": "The structured cold outreach template in the JobInGen framework gave me a 25% reply rate. I landed an interview at Google in 2 weeks!",
+    "role_landed": "Software Engineer @ Google",
+    "photo_path": "assets/photos/aryan.png"
+  },
+  {
+    "testimonial_id": "testi_002",
+    "name": "Priya Nair",
+    "quote": "Building SQL dashboard projects and posting them on LinkedIn as proof-of-work got the attention of hiring managers directly. JobInGen works.",
+    "role_landed": "Data Analyst @ Groww",
+    "photo_path": "assets/photos/priya.png"
+  }
+]

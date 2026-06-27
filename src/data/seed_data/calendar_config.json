@@ -1,0 +1,27 @@
+[
+  {
+    "pillar": "Educate",
+    "target_weight": 0.40,
+    "description": "Resume blueprints, outreach templates, profile checklists, DSA tips."
+  },
+  {
+    "pillar": "Opportunity",
+    "target_weight": 0.25,
+    "description": "Active tech jobs, APM roles, internships, career alerts."
+  },
+  {
+    "pillar": "Proof",
+    "target_weight": 0.15,
+    "description": "Placement success stories, student testimonials, interview transcripts."
+  },
+  {
+    "pillar": "Brand",
+    "target_weight": 0.10,
+    "description": "Founding story, skills vs degrees philosophy, product announcements."
+  },
+  {
+    "pillar": "Culture",
+    "target_weight": 0.10,
+    "description": "Remote developer memes, corporate culture comparisons, soft skills discussion."
+  }
+]

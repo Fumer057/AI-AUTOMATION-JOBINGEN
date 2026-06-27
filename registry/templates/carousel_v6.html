@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Carousel - {{ spec.template_version }}</title>
+    <!-- Assuming base.css is alongside the templates, but Jinja might need an absolute path depending on setup.
+         We will inline some variables for safety and use standard CSS link -->
+    <link rel="stylesheet" href="base.css">
+    <style>
+        :root {
+            /* Dynamically injected brand colors from RenderSpec */
+            --primary: {{ spec.brand_colors.primary }};
+            --accent: {{ spec.brand_colors.accent }};
+            --bg-dark: {{ spec.brand_colors.bg_dark }};
+            --text-main: {{ spec.brand_colors.text }};
+            --white: {{ spec.brand_colors.white }};
+            --font-heading: '{{ spec.font_family }}', sans-serif;
+        }
+
+        body {
+            /* Reset body padding to allow exact slide dimension sizing */
+            padding: 0; 
+            margin: 0;
+            background-color: #000; /* Dark background outside slides */
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .slide {
+            width: {{ spec.dimensions.width }}px;
+            height: {{ spec.dimensions.height }}px;
+            background-color: var(--bg-dark);
+            position: relative;
+            box-sizing: border-box;
+            /* Inner padding for standard content */
+            padding: 100px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Title Slide Customizations */
+        .title_slide .heading-xl {
+            margin-bottom: 40px;
+        }
+        
+        /* Content Slide Customizations */
+        .content_slide .heading-lg {
+            color: var(--accent);
+            margin-bottom: 30px;
+        }
+
+        /* CTA Slide Customizations */
+        .cta_slide {
+            align-items: center;
+            text-align: center;
+        }
+        
+        .cta_slide .heading-lg {
+            margin-bottom: 24px;
+        }
+        
+        .cta-button {
+            margin-top: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            padding: 20px 48px;
+            border-radius: 100px;
+            font-family: var(--font-heading);
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--white);
+            box-shadow: 0 12px 24px rgba(62, 146, 204, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    {% for slide in spec.slides %}
+    <div class="slide {{ slide.layout }}" id="slide-{{ slide.slide_num }}">
+        
+        <!-- Header: Logo & Slide Indicator -->
+        <div class="slide-header">
+            {% if spec.logo_path %}
+                <img src="file://{{ spec.logo_path }}" alt="Logo" class="brand-logo">
+            {% else %}
+                <div class="brand-logo" style="color:white; font-size: 32px; font-weight:bold;">JobInGen</div>
+            {% endif %}
+            
+            {% if slide.layout != 'title_slide' %}
+                <div class="slide-number">{{ slide.slide_num }} / {{ spec.slides|length }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Dynamic Content Layouts -->
+        {% if slide.layout == 'title_slide' %}
+            <h1 class="heading-xl text-gradient animate-fade-up">{{ slide.heading }}</h1>
+            <p class="body-text animate-fade-up" style="animation-delay: 0.2s;">{{ slide.body }}</p>
+            
+        {% elif slide.layout == 'cta_slide' %}
+            <h2 class="heading-lg animate-fade-up">{{ slide.heading }}</h2>
+            <p class="body-text animate-fade-up" style="animation-delay: 0.2s;">{{ slide.body }}</p>
+            <div class="cta-button animate-fade-up" style="animation-delay: 0.4s;">Take Action</div>
+            
+        {% else %}
+            <!-- content_slide -->
+            <div class="glass-card animate-fade-up">
+                <h2 class="heading-lg">{{ slide.heading }}</h2>
+                <p class="body-text">{{ slide.body }}</p>
+            </div>
+        {% endif %}
+
+        <!-- Footer -->
+        <div class="slide-footer">
+            <span class="footer-text">Swipe to learn more</span>
+            <span class="footer-handle">@JobInGen</span>
+        </div>
+        
+    </div>
+    {% endfor %}
+
+</body>
+</html>

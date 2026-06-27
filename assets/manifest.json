@@ -1,0 +1,9 @@
+{
+  "font_heading": "fonts/PlusJakartaSans-Bold.woff2",
+  "font_body": "fonts/Inter-Regular.woff2",
+  "logo_white": "logos/jobingen_logo_white.svg",
+  "logo_dark": "logos/jobingen_logo_dark.svg",
+  "bg_blue_gradient": "backgrounds/gradient_blue.png",
+  "icon_email": "icons/email.svg",
+  "icon_check": "icons/check.svg"
+}

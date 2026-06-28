@@ -3,7 +3,7 @@ import asyncio
 import litellm
 
 async def main():
-    os.environ["GEMINI_API_KEY"] = "AQ.Ab8RN6I3RexHABnveqyngUidNMtYdZx4gXsapNl60ywELJW3DQ"
+    os.environ["GEMINI_API_KEY"] = "YOUR_API_KEY_HERE"
     litellm.set_verbose=True
     try:
         response = litellm.completion(

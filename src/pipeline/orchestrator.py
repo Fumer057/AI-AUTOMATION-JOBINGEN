@@ -1,7 +1,7 @@
 import sys
 import argparse
 import asyncio
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 
 import structlog
@@ -26,6 +26,7 @@ from src.llm.qa_pass import QAPass
 from src.rendering.render_spec_builder import RenderSpecBuilder
 from src.rendering.renderer import DesignRenderer
 from src.delivery.output_queue import OutputQueue
+from src.plugins.plugin_manager import PluginManager
 
 logger = structlog.get_logger(__name__)
 
@@ -60,6 +61,9 @@ class Orchestrator:
         self.rs_builder = RenderSpecBuilder(self.config, self.registry, self.assets)
         self.renderer = DesignRenderer(self.config)
         self.queue = OutputQueue(self.config, self.ops)
+        
+        # Plugins
+        self.plugins = PluginManager(self.config, self.bus)
 
     async def initialize(self):
         """Async initialization for data stores."""
@@ -110,6 +114,8 @@ class Orchestrator:
                 if qa_report.passed:
                     state.status = PipelineStatus.QA_PASSED
                     await self.bus.emit("QAPassed", state)
+                    # Trigger plugins that need to modify state before rendering (e.g. image generator)
+                    await self.bus.emit("ContentApproved", state)
                     break
                 else:
                     feedback = qa_report.feedback
@@ -119,14 +125,19 @@ class Orchestrator:
                 raise RuntimeError(f"Failed to pass QA after {max_retries} attempts.")
                 
             # 4. RENDER SPEC BUILDER
-            state.render_spec = self.rs_builder.build(state.plan, state.template, state.generated_copy)
+            state.render_spec = self.rs_builder.build(state.plan, state.template, state.generated_copy, state.dynamic_assets)
             state.status = PipelineStatus.RENDER_SPEC
             
             # 5. DESIGN RENDERER
-            image_paths = await self.renderer.render(state.render_spec, state.run_id)
-            state.image_paths = image_paths
-            state.status = PipelineStatus.RENDERED
-            await self.bus.emit("Rendered", state)
+            logger.info("Starting design rendering", slides=len(state.render_spec.slides), template=state.template.template_type)
+            state.image_paths = await self.renderer.render(state.render_spec, state.run_id)
+            state.status = PipelineStatus.DELIVERED
+            
+            # Emit RenderComplete to trigger publishing and notification plugins
+            await self.bus.emit("RenderComplete", state)
+            
+            # 6. FINISH
+            total_time = datetime.utcnow() - state.started_at
             
             # 6. OUTPUT QUEUE (Delivery & Logging)
             await self.queue.process(state)

@@ -93,36 +93,97 @@ class OutputQueue:
         return str(run_dir)
 
     def _write_payload_markdown(self, state: ContentState, path: Path):
-        """Creates a human-readable markdown file with the final text content."""
+        """Creates a human-readable markdown file with the final text content and process details."""
         if not state.generated_copy:
             return
             
         copy = state.generated_copy
+        plan = state.plan
+        qa = state.qa
         
         lines = [
-            f"# Content Payload: {state.run_id}",
-            f"**Date**: {state.date.isoformat()}",
-            f"**Pillar**: {state.plan.pillar if state.plan else 'Unknown'}",
-            "",
-            "## Caption",
-            copy.caption,
-            "",
-            "## Call to Action",
-            copy.cta,
-            "",
-            "## Hashtags",
-            " ".join(copy.hashtags) if copy.hashtags else "",
-            "",
-            "## Alt Text (for accessibility)",
-            copy.alt_text,
-            "",
+            f"# JobInGen Content Engine Report",
+            f"**Run ID**: `{state.run_id}` | **Date**: `{state.date.isoformat()}` | **Status**: `✅ {state.status.name}`",
             "---",
-            "## Images Generated:"
+            "## 1. Final Post Assets",
+            "### Generated Images"
         ]
         
         for img in state.image_paths:
-            img_name = Path(img).name
-            lines.append(f"- {img_name}")
+            img_path = Path(img)
+            # Embed image in markdown
+            lines.append(f"![{img_path.name}](./{img_path.name})")
+            lines.append("")
+            
+        lines.extend([
+            "### Social Media Payload",
+            "**Caption:**",
+            f"> {copy.caption}",
+            "",
+            "**Call to Action:**",
+            f"> {copy.cta}",
+            "",
+            "**Hashtags:**",
+            f"`{' '.join(copy.hashtags) if copy.hashtags else ''}`",
+            "",
+            "**Alt Text:**",
+            f"> {copy.alt_text}",
+            "",
+            "---",
+            "## 2. Intelligence & Planning",
+            f"- **Pillar**: `{plan.pillar if plan else 'N/A'}`",
+            f"- **Topic**: {plan.topic if plan else 'N/A'}",
+            f"- **Target Audience**: {plan.audience if plan else 'N/A'}",
+            f"- **Template Selected**: `{state.template.template_type if state.template else 'N/A'}`",
+            ""
+        ])
+        
+        if plan and plan.scoring:
+            s = plan.scoring
+            lines.extend([
+                "**Scoring Breakdown:**",
+                f"- Total Score: **{s.total:.2f}**",
+                f"- Pillar Deficit: {s.pillar_deficit:.2f}",
+                f"- Freshness: {s.freshness:.2f}",
+                f"- Engagement History: {s.engagement_history:.2f}",
+                ""
+            ])
+            
+        lines.extend([
+            "---",
+            "## 3. QA & Critic Pass",
+            f"- **Overall Score**: `{qa.overall_score if qa else 'N/A'}/10`",
+            f"- **Passed on Attempt**: `{state.qa_attempts}`",
+            f"- **Feedback**: {qa.feedback if qa else 'N/A'}",
+            ""
+        ])
+        
+        if qa and qa.scores:
+            lines.append("**Rubric Scores:**")
+            for k, v in qa.scores.items():
+                lines.append(f"- {k}: {v}/10")
+            lines.append("")
+            
+        lines.extend([
+            "---",
+            "## 4. LLM Telemetry",
+            f"- **Total Generation Time**: `{state.total_duration_ms / 1000 if state.total_duration_ms else 0:.1f}s`",
+        ])
+        
+        total_cost = 0.0
+        total_in = 0
+        total_out = 0
+        for call in state.llm_calls:
+            total_cost += call.cost_usd
+            total_in += call.input_tokens
+            total_out += call.output_tokens
+            lines.append(f"- **{call.module}** (`{call.model}`): {call.latency_ms}ms | {call.input_tokens} in / {call.output_tokens} out | Strategy: `{call.strategy_used}`")
+            
+        lines.extend([
+            "",
+            f"**Total LLM Cost**: `${total_cost:.5f}`",
+            f"**Total Tokens**: {total_in + total_out}"
+        ])
             
         with open(path, "w", encoding="utf-8") as f:
             f.write("\n".join(lines))

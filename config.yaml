@@ -1,157 +1,180 @@
-engine:
-  name: "JobInGen Content Engine"
-  version: "3.0.0"
-
-registry:
-  dir: "registry"
-  active:
-    prompts:
-      planner: "v4"
-      copywriter_carousel: "v2"
-      copywriter_jobdrop: "v1"
-      copywriter_meme: "v1"
-      copywriter_comparison: "v1"
-      copywriter_success: "v1"
-      copywriter_mentor: "v1"
-      copywriter_insight: "v1"
-      critic: "v3"
-    rubrics:
-      critic: "v2"
-    schemas:
-      copy_output: "v2"
-      render_spec: "v1"
-    templates:
-      carousel: "v6"
-      insight_card: "v3"
-      job_drop: "v3"
-      comparison: "v2"
-      success_story: "v1"
-      mentor_spotlight: "v1"
-      meme: "v2"
-
 assets:
-  dir: "assets"
-  manifest: "assets/manifest.json"
-
+  dir: assets
+  manifest: assets/manifest.json
+brand:
+  colors:
+    accent: '#3E92CC'
+    bg_dark: '#0D1B2A'
+    primary: '#0A2463'
+    text: '#F0F0F0'
+    white: '#FFFFFF'
+  font_body: Inter
+  font_heading: Plus Jakarta Sans
+critic:
+  max_retries: 3
+  pass_threshold: 7.0
+  rubric_weights:
+    brand_voice: 0.2
+    cta_quality: 0.15
+    hashtag_caption: 0.1
+    hook_strength: 0.2
+    no_cringe: 0.15
+    value_density: 0.2
+engine:
+  name: JobInGen Content Engine
+  version: 3.0.0
 llm:
-  primary:
-    provider: "gemini"
-    model: "gemini-1.5-flash-001"
-  fallback:
-    provider: "anthropic"
-    model: "claude-3-5-sonnet-20240620"
-  temperatures:
-    generate: 0.7
-    retry: 0.3
-    critic: 0.2
-    planner: 0.4
-  max_tokens:
-    single: 2000
-    carousel: 4000
-  timeout_seconds: 60
-  max_api_retries: 3
   cache:
     enabled: true
     ttl_seconds: 3600
+  fallback:
+    model: gemini-2.5-flash
+    provider: gemini
+  max_api_retries: 3
+  max_tokens:
+    carousel: 4000
+    single: 2000
+  primary:
+    model: gemini-2.5-flash
+    provider: gemini
   rate_limit:
-    openai:
-      rpm: 60
-      tpm: 150000
     anthropic:
       rpm: 50
       tpm: 100000
-
-brand:
-  colors:
-    primary: "#0A2463"
-    white: "#FFFFFF"
-    accent: "#3E92CC"
-    bg_dark: "#0D1B2A"
-    text: "#F0F0F0"
-  font_heading: "Plus Jakarta Sans"
-  font_body: "Inter"
-
-planner:
-  pillars:
-    Educate: 0.40
-    Opportunity: 0.25
-    Proof: 0.15
-    Brand: 0.10
-    Culture: 0.10
-  history_window_days: 14
-  topic_cooldown_days: 30
-  score_weights:
-    pillar_deficit: 0.30
-    seasonality: 0.10
-    engagement: 0.15
-    freshness: 0.25
-    trending: 0.10
-    campaign: 0.10
-  seasonality_rules:
-    - months: [7, 8, 9]
-      boost_pillars: ["Opportunity", "Educate"]
-      boost_factor: 1.5
-    - months: [12, 1]
-      boost_pillars: ["Culture", "Brand"]
-      boost_factor: 1.3
-  template_compatibility:
-    Educate: ["carousel", "insight_card", "comparison", "mentor_spotlight", "meme"]
-    Opportunity: ["job_drop", "comparison"]
-    Proof: ["carousel", "success_story", "mentor_spotlight"]
-    Brand: ["carousel", "insight_card", "meme"]
-    Culture: ["insight_card", "success_story", "mentor_spotlight", "meme"]
-
-critic:
-  pass_threshold: 7.0
-  max_retries: 3
-  rubric_weights:
-    brand_voice: 0.20
-    hook_strength: 0.20
-    value_density: 0.20
-    cta_quality: 0.15
-    no_cringe: 0.15
-    hashtag_caption: 0.10
-
-renderer:
-  browser: "chromium"
-  dimensions:
-    "1080x1080":
-      width: 1080
-      height: 1080
-    "1080x1350":
-      width: 1080
-      height: 1350
-  templates_dir: "registry/templates"
-  output_format: "png"
-  quality: 95
-
-storage:
-  knowledge_database_path: "data/knowledge.db"
-  operational_database_path: "data/operational.db"
-  output_dir: "output"
-  seed_data_dir: "src/data/seed_data"
-  checkpoint_enabled: true
-
+    openai:
+      rpm: 60
+      tpm: 150000
+  temperatures:
+    critic: 0.2
+    generate: 0.7
+    planner: 0.4
+    retry: 0.3
+  timeout_seconds: 60
 notifications:
+  notion:
+    enabled: false
   slack:
     enabled: false
   whatsapp:
     enabled: true
-  notion:
-    enabled: false
-
-schedule:
-  cron: "0 6 * * *"
-  timezone: "Asia/Kolkata"
-
+planner:
+  history_window_days: 14
+  pillars:
+    Brand: 0.1
+    Culture: 0.1
+    Educate: 0.4
+    Opportunity: 0.25
+    Proof: 0.15
+  score_weights:
+    campaign: 0.1
+    engagement: 0.15
+    freshness: 0.25
+    pillar_deficit: 0.3
+    seasonality: 0.1
+    trending: 0.1
+  seasonality_rules:
+  - boost_factor: 1.5
+    boost_pillars:
+    - Opportunity
+    - Educate
+    months:
+    - 7
+    - 8
+    - 9
+  - boost_factor: 1.3
+    boost_pillars:
+    - Culture
+    - Brand
+    months:
+    - 12
+    - 1
+  template_compatibility:
+    Brand:
+    - carousel
+    - insight_card
+    - meme
+    Culture:
+    - insight_card
+    - success_story
+    - mentor_spotlight
+    - meme
+    Educate:
+    - carousel
+    - insight_card
+    - comparison
+    - mentor_spotlight
+    - meme
+    Opportunity:
+    - job_drop
+    - comparison
+    Proof:
+    - carousel
+    - success_story
+    - mentor_spotlight
+  topic_cooldown_days: 30
 plugins:
-  linkedin_publish:
-    enabled: false
-  job_ingestion:
-    enabled: false
+  analytics_loop:
+    enabled: true
   instagram_publish:
     enabled: false
+  job_ingestion:
+    enabled: true
+  linkedin_publish:
+    enabled: false
   trend_ingestion:
-    enabled: false
-  analytics_loop:
-    enabled: false
+    enabled: true
+registry:
+  active:
+    prompts:
+      copywriter_carousel: v2
+      copywriter_comparison: v1
+      copywriter_insight: v1
+      copywriter_jobdrop: v1
+      copywriter_meme: v1
+      copywriter_mentor: v1
+      copywriter_success: v1
+      critic: v3
+      planner: v4
+      qa_critic: v1
+    rubrics:
+      critic: v2
+    schemas:
+      copy_output: v2
+      render_spec: v1
+    templates:
+      carousel: v6
+      comparison: v2
+      insight_card: v3
+      job_drop: v3
+      meme: v2
+      mentor_spotlight: v1
+      success_story: v1
+  dir: registry
+renderer:
+  browser: chromium
+  dimensions:
+    1080x1080:
+      height: 1080
+      width: 1080
+    1080x1350:
+      height: 1350
+      width: 1080
+  output_format: png
+  quality: 95
+  templates_dir: registry/templates
+schedule:
+  cron: 0 6 * * *
+  timezone: Asia/Kolkata
+social_auth:
+  instagram:
+    access_token: ''
+    account_id: ''
+  linkedin:
+    access_token: ''
+    organization_id: ''
+storage:
+  checkpoint_enabled: true
+  knowledge_database_path: data/knowledge.db
+  operational_database_path: data/operational.db
+  output_dir: output
+  seed_data_dir: src/data/seed_data

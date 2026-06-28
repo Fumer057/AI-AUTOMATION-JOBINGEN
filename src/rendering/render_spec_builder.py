@@ -17,13 +17,15 @@ class RenderSpecBuilder:
         self.registry = registry
         self.assets = asset_manager
 
-    def build(self, plan: ContentPlan, template: TemplateSelection, copy: CopyOutput) -> RenderSpec:
+    def build(self, plan: ContentPlan, template: TemplateSelection, copy: CopyOutput, dynamic_assets: dict[str, str] = None) -> RenderSpec:
         logger.info("Building RenderSpec", template=template.template_type, slides=template.slide_count)
+        
+        dynamic_assets = dynamic_assets or {}
         
         # 1. Resolve active template version
         # Currently, templates in registry are managed slightly differently, but we can extract version from config
         # or assume the config has the active version.
-        active_version = self.config.registry.active["templates"].get(template.template_type, "unknown")
+        active_version = self.config.registry.active.templates.get(template.template_type, "unknown")
         
         # 2. Resolve dimensions
         dim_key = plan.dimensions
@@ -48,11 +50,12 @@ class RenderSpecBuilder:
         spec = RenderSpec(
             template=template.template_type,
             template_version=active_version,
-            dimensions=dimensions,
-            brand_colors=brand_colors,
+            dimensions=dimensions.model_dump() if hasattr(dimensions, 'model_dump') else dimensions,
+            brand_colors=brand_colors.model_dump() if hasattr(brand_colors, 'model_dump') else brand_colors,
             font_family=font_family,
             logo_path=logo_path,
             assets=resolved_assets,
+            dynamic_assets=dynamic_assets,
             slides=slides
         )
         return spec

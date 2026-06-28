@@ -34,6 +34,7 @@ class ContentPlanner:
         recent_topics = await self.memory.get_recent_topic_ids(self.config.history_window_days)
         actual_pillar_distribution = await self.memory.get_pillar_distribution(self.config.history_window_days)
         format_performance = await self.memory.get_format_performance()
+        pillar_multipliers = await self.memory.get_pillar_multipliers()
         calendar_config = await self.knowledge.get_calendar_config()
 
         # 2. Get all candidate topics from Knowledge Store
@@ -62,6 +63,7 @@ class ContentPlanner:
                 run_date,
                 actual_pillar_distribution,
                 format_performance,
+                pillar_multipliers,
                 calendar_config,
                 recent_topics
             )
@@ -104,6 +106,7 @@ class ContentPlanner:
         run_date: date,
         pillar_distribution: Dict[str, float],
         format_performance: Dict[str, float],
+        pillar_multipliers: Dict[str, float],
         calendar_config: Dict[str, Dict[str, Any]],
         recent_topics: Set[str]
     ) -> TopicScore:
@@ -115,8 +118,10 @@ class ContentPlanner:
         target_weight = self.config.pillars.get(pillar, 0.0)
         actual_weight = pillar_distribution.get(pillar, 0.0)
         deficit = max(0.0, target_weight - actual_weight)
-        # Normalize deficit to 0.0 - 1.0 (since target_weight max is 1.0, deficit max is 1.0)
-        pillar_deficit_score = deficit
+        
+        # Multiply deficit score by the learned pillar multiplier (default 1.0)
+        learned_multiplier = pillar_multipliers.get(pillar, 1.0)
+        pillar_deficit_score = deficit * learned_multiplier
 
         # B. Seasonality
         seasonality_score = 0.1 # default base
@@ -130,8 +135,10 @@ class ContentPlanner:
         template = topic.get("suggested_template")
         engagement_score = 0.5 # default base (neutral)
         if template and template in format_performance:
-            # Scale average QA score (usually 0-10) to 0-1
-            engagement_score = format_performance[template] / 10.0
+            # format_performance is now a Learning Module multiplier (0.5 to 1.5)
+            # Normalize to 0-1 range for the scoring engine
+            multiplier = format_performance[template]
+            engagement_score = (multiplier - 0.5) / 1.0
 
         # D. Freshness
         freshness_score = 1.0 # default if never used

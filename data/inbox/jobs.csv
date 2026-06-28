@@ -1,0 +1,3 @@
+job_id,company,role,location,link,posted_date,featured
+job_inbox_1,Acme Corp,Software Engineer,Remote,https://example.com/job1,2026-06-28,1
+job_inbox_2,TechGlobal,Data Scientist,New York,https://example.com/job2,2026-06-27,0

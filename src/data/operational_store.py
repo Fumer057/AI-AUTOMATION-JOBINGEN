@@ -157,3 +157,72 @@ class OperationalStore:
             ) as cursor:
                 row = await cursor.fetchone()
                 return row[0] if row[0] is not None else 0.0
+
+    async def upsert_post_metrics(self, run_id: str, platform: str, metrics: Dict[str, Any]):
+        """Upsert engagement metrics for a specific post."""
+        scored_at = datetime.utcnow().isoformat()
+        async with aiosqlite.connect(self.db_path) as conn:
+            await conn.execute(
+                """INSERT INTO engagement_scores (
+                    run_id, platform, likes, comments, shares, impressions, engagement_rate, scored_at
+                   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                   ON CONFLICT(run_id, platform) DO UPDATE SET
+                   likes=excluded.likes,
+                   comments=excluded.comments,
+                   shares=excluded.shares,
+                   impressions=excluded.impressions,
+                   engagement_rate=excluded.engagement_rate,
+                   scored_at=excluded.scored_at""",
+                (
+                    run_id, platform, metrics.get("likes", 0), metrics.get("comments", 0), 
+                    metrics.get("shares", 0), metrics.get("impressions", 0), 
+                    metrics.get("engagement_rate", 0.0), scored_at
+                )
+            )
+            await conn.commit()
+
+    async def get_raw_metrics(self, days: int = 30) -> List[Dict[str, Any]]:
+        """Fetch raw engagement scores joined with run history for analysis."""
+        async with aiosqlite.connect(self.db_path) as conn:
+            conn.row_factory = aiosqlite.Row
+            query = """
+                SELECT e.*, g.pillar, g.template_type, g.run_date 
+                FROM engagement_scores e
+                JOIN generation_history g ON e.run_id = g.run_id
+                WHERE e.scored_at >= datetime('now', '-' || ? || ' days')
+            """
+            async with conn.execute(query, (days,)) as cursor:
+                rows = await cursor.fetchall()
+                return [dict(row) for row in rows]
+
+    async def write_learning_insights(self, insights: List[Dict[str, Any]]):
+        """Write computed learning multipliers (overwrites based on insight_id)."""
+        created_at = datetime.utcnow().isoformat()
+        async with aiosqlite.connect(self.db_path) as conn:
+            for insight in insights:
+                await conn.execute(
+                    """INSERT INTO learning_insights (
+                        insight_id, insight_type, insight_value, confidence, sample_size, created_at
+                       ) VALUES (?, ?, ?, ?, ?, ?)
+                       ON CONFLICT(insight_id) DO UPDATE SET
+                       insight_value=excluded.insight_value,
+                       confidence=excluded.confidence,
+                       sample_size=excluded.sample_size,
+                       created_at=excluded.created_at""",
+                    (
+                        insight["insight_id"], insight["insight_type"], insight["insight_value"], 
+                        insight["confidence"], insight["sample_size"], created_at
+                    )
+                )
+            await conn.commit()
+
+    async def get_learning_insights(self, insight_type: str) -> List[Dict[str, Any]]:
+        """Fetch current learning multipliers by type (e.g. 'template', 'pillar')."""
+        async with aiosqlite.connect(self.db_path) as conn:
+            conn.row_factory = aiosqlite.Row
+            async with conn.execute(
+                "SELECT * FROM learning_insights WHERE insight_type = ?", (insight_type,)
+            ) as cursor:
+                rows = await cursor.fetchall()
+                return [dict(row) for row in rows]
+

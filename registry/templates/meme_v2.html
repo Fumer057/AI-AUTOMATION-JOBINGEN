@@ -61,7 +61,11 @@
 </head>
 <body>
     {% set slide = spec.slides[0] %}
-    <div class="slide" id="slide-1">
+    <div class="slide" id="slide-1" 
+         {% if spec.dynamic_assets.background %}
+         style="background-image: url('file:///{{ spec.dynamic_assets.background | replace('\\', '/') }}'); background-size: cover; background-position: center;"
+         {% endif %}
+    >
         
         <div class="tweet-card animate-fade-up">
             <div class="tweet-header">

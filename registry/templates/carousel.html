@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ slide.headline }}</h1>
+    
+    {% if slide.body %}
+    <p>{{ slide.body }}</p>
+    {% endif %}
+    
+    {% if slide.bullet_points %}
+    <ul style="font-size: 36px; line-height: 1.6; color: var(--text-color);">
+        {% for bullet in slide.bullet_points %}
+        <li>{{ bullet }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+{% endblock %}

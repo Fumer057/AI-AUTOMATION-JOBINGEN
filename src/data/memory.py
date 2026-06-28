@@ -68,17 +68,35 @@ class Memory:
 
     async def get_format_performance(self) -> Dict[str, float]:
         """
-        Return average QA performance scores by template type.
+        Return performance multipliers by template type from the Learning Module.
         Used by the Planner scoring engine to rank layout options.
         """
-        async with aiosqlite.connect(self.db_path) as conn:
-            async with conn.execute(
-                """SELECT template_type, AVG(qa_score) FROM generation_history 
-                   WHERE qa_score IS NOT NULL AND approved = 1
-                   GROUP BY template_type"""
-            ) as cursor:
-                rows = await cursor.fetchall()
-                return {row[0]: row[1] for row in rows}
+        insights = await self.ops_store.get_learning_insights("template")
+        # Map insight_id (e.g. "template_carousel") to float multiplier
+        # Stripping the "template_" prefix
+        perf = {}
+        for row in insights:
+            template_name = row["insight_id"].replace("template_", "")
+            try:
+                perf[template_name] = float(row["insight_value"])
+            except ValueError:
+                pass
+        return perf
+
+    async def get_pillar_multipliers(self) -> Dict[str, float]:
+        """
+        Return performance multipliers by pillar from the Learning Module.
+        """
+        insights = await self.ops_store.get_learning_insights("pillar")
+        # Map insight_id (e.g. "pillar_Educate") to float multiplier
+        perf = {}
+        for row in insights:
+            pillar_name = row["insight_id"].replace("pillar_", "")
+            try:
+                perf[pillar_name] = float(row["insight_value"])
+            except ValueError:
+                pass
+        return perf
 
     async def log_run(self, state: ContentState):
         """

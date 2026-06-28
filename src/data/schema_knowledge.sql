@@ -15,6 +15,9 @@ CREATE TABLE IF NOT EXISTS topics_bank (
     used INTEGER DEFAULT 0,
     last_used TEXT,
     times_used INTEGER DEFAULT 0,
+    source TEXT DEFAULT 'manual',
+    active INTEGER DEFAULT 1,
+    ingested_at TEXT,
     FOREIGN KEY (pillar) REFERENCES calendar_config (pillar)
 );
 
@@ -25,7 +28,10 @@ CREATE TABLE IF NOT EXISTS jobs_sheet (
     location TEXT NOT NULL,
     link TEXT NOT NULL,
     posted_date TEXT NOT NULL,
-    featured INTEGER DEFAULT 0
+    featured INTEGER DEFAULT 0,
+    source TEXT DEFAULT 'manual',
+    active INTEGER DEFAULT 1,
+    ingested_at TEXT
 );
 
 CREATE TABLE IF NOT EXISTS testimonials (

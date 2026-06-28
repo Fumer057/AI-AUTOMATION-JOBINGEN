@@ -55,12 +55,13 @@ class CopyOutput(BaseModel):
     hashtags: list[str]
     cta: str
     alt_text: str
+    image_prompt: Optional[str] = None
 
 class QAReport(BaseModel):
     overall_score: float
     passed: bool
     attempt: int
-    scores: dict[str, float]
+    scores: dict[str, float] = Field(default_factory=dict, description="Scores out of 10 for each rubric dimension")
     feedback: str
     rubric_version: str
 
@@ -81,6 +82,7 @@ class RenderSpec(BaseModel):
     font_family: str
     logo_path: str
     assets: dict[str, str]
+    dynamic_assets: dict[str, str] = Field(default_factory=dict)
     slides: list[SlideRenderData]
 
 class LLMCallLog(BaseModel):
@@ -91,6 +93,12 @@ class LLMCallLog(BaseModel):
     cost_usd: float
     latency_ms: int
     cached: bool = False
+    strategy_used: str = "native"
+    repair_attempts: int = 0
+    validation_failures: int = 0
+    success: bool = True
+    exception_type: Optional[str] = None
+    prompt_version: Optional[str] = None
 
 class ContentState(BaseModel):
     run_id: str = Field(default_factory=lambda: str(uuid4())[:8])
@@ -113,6 +121,7 @@ class ContentState(BaseModel):
 
     # Step 5: RenderSpec Builder
     render_spec: Optional[RenderSpec] = None
+    dynamic_assets: dict[str, str] = Field(default_factory=dict)
 
     # Step 6: Renderer
     image_paths: list[str] = Field(default_factory=list)

@@ -34,8 +34,24 @@ class KnowledgeStore:
             await conn.executescript(schema_ddl)
             await conn.commit()
             
+            # Migrate schema if needed
+            await self._migrate_schema_if_needed(conn)
+            
             # Seed if empty
             await self._seed_if_empty(conn)
+
+    async def _migrate_schema_if_needed(self, conn: aiosqlite.Connection):
+        """Add new columns for ingestion if they do not exist."""
+        for table in ["topics_bank", "jobs_sheet"]:
+            async with conn.execute(f"PRAGMA table_info({table})") as cursor:
+                columns = [row[1] for row in await cursor.fetchall()]
+                if "source" not in columns:
+                    await conn.execute(f"ALTER TABLE {table} ADD COLUMN source TEXT DEFAULT 'manual'")
+                if "active" not in columns:
+                    await conn.execute(f"ALTER TABLE {table} ADD COLUMN active INTEGER DEFAULT 1")
+                if "ingested_at" not in columns:
+                    await conn.execute(f"ALTER TABLE {table} ADD COLUMN ingested_at TEXT")
+        await conn.commit()
 
     async def _seed_if_empty(self, conn: aiosqlite.Connection):
         """Seed tables from JSON files if they contain 0 rows."""
@@ -179,3 +195,50 @@ class KnowledgeStore:
             )
             await conn.commit()
             logger.info("Topic marked as used", topic_id=topic_id, last_used=last_used_date)
+
+    async def upsert_job(self, job_data: Dict[str, Any]):
+        """Insert or update a job from ingestion."""
+        async with aiosqlite.connect(self.db_path) as conn:
+            await conn.execute(
+                """INSERT INTO jobs_sheet (job_id, company, role, location, link, posted_date, featured, source, active, ingested_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                   ON CONFLICT(job_id) DO UPDATE SET
+                   company=excluded.company,
+                   role=excluded.role,
+                   location=excluded.location,
+                   link=excluded.link,
+                   posted_date=excluded.posted_date,
+                   featured=excluded.featured,
+                   source=excluded.source,
+                   active=excluded.active,
+                   ingested_at=excluded.ingested_at""",
+                (
+                    job_data["job_id"], job_data["company"], job_data["role"], job_data["location"], 
+                    job_data["link"], job_data["posted_date"], job_data.get("featured", 0), 
+                    job_data.get("source", "ingestion"), job_data.get("active", 1), job_data.get("ingested_at")
+                )
+            )
+            await conn.commit()
+
+    async def upsert_topic(self, topic_data: Dict[str, Any]):
+        """Insert or update a topic from ingestion."""
+        async with aiosqlite.connect(self.db_path) as conn:
+            await conn.execute(
+                """INSERT INTO topics_bank (topic_id, pillar, topic_title, topic_context, suggested_template, source, active, ingested_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                   ON CONFLICT(topic_id) DO UPDATE SET
+                   pillar=excluded.pillar,
+                   topic_title=excluded.topic_title,
+                   topic_context=excluded.topic_context,
+                   suggested_template=excluded.suggested_template,
+                   source=excluded.source,
+                   active=excluded.active,
+                   ingested_at=excluded.ingested_at""",
+                (
+                    topic_data["topic_id"], topic_data["pillar"], topic_data["topic_title"], 
+                    topic_data["topic_context"], topic_data.get("suggested_template"), 
+                    topic_data.get("source", "ingestion"), topic_data.get("active", 1), topic_data.get("ingested_at")
+                )
+            )
+            await conn.commit()
+

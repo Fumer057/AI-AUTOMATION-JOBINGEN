@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&display=swap');
+
+        :root {
+            --primary: {{ brand.colors.primary }};
+            --white: {{ brand.colors.white }};
+            --accent: {{ brand.colors.accent }};
+            --bg-dark: {{ brand.colors.bg_dark }};
+            --text-color: {{ brand.colors.text }};
+            --font-heading: 'Plus Jakarta Sans', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: {{ dimensions.width }}px;
+            height: {{ dimensions.height }}px;
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 60px;
+        }
+
+        .logo {
+            font-family: var(--font-heading);
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .pillar-badge {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 24px;
+        }
+
+        h1 {
+            font-family: var(--font-heading);
+            font-size: 85px;
+            line-height: 1.1;
+            margin: 0 0 30px 0;
+            color: var(--white);
+        }
+
+        h2 {
+            font-family: var(--font-heading);
+            font-size: 55px;
+            line-height: 1.2;
+            margin: 0 0 20px 0;
+            color: var(--accent);
+        }
+
+        p {
+            font-size: 36px;
+            line-height: 1.5;
+            margin: 0 0 30px 0;
+            color: var(--text-color);
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 20px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .footer {
+            padding: 40px 60px;
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .slide-counter {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 20px;
+        }
+
+        /* Generated image layer */
+        .generated-image-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    {% if image_url %}
+    <div class="generated-image-bg" style="background-image: url('{{ image_url }}');"></div>
+    {% endif %}
+
+    <div class="header">
+        <div class="logo">JobInGen.</div>
+        <div class="pillar-badge">{{ plan.pillar }}</div>
+    </div>
+
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <div class="footer">
+        <div>{{ plan.suggested_cta }}</div>
+        {% if slide_number %}
+        <div class="slide-counter">{{ slide_number }} / {{ total_slides }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>

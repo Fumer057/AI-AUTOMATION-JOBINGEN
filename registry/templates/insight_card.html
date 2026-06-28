@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div style="background: rgba(255, 255, 255, 0.05); padding: 50px; border-radius: 20px; border-left: 10px solid var(--primary);">
+        <h2>{{ slide.headline }}</h2>
+        
+        {% if slide.body %}
+        <p style="font-size: 42px; margin-top: 20px;">{{ slide.body }}</p>
+        {% endif %}
+    </div>
+{% endblock %}

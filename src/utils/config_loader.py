@@ -145,6 +145,18 @@ class PluginsConfig(BaseModel):
     trend_ingestion: PluginConfig
     analytics_loop: PluginConfig
 
+class LinkedInAuthConfig(BaseModel):
+    access_token: str
+    organization_id: str
+
+class InstagramAuthConfig(BaseModel):
+    access_token: str
+    account_id: str
+
+class SocialAuthConfig(BaseModel):
+    linkedin: LinkedInAuthConfig
+    instagram: InstagramAuthConfig
+
 class AppConfig(BaseModel):
     registry: RegistryConfig
     assets: AssetsConfig
@@ -157,6 +169,7 @@ class AppConfig(BaseModel):
     notifications: NotificationsConfig
     schedule: ScheduleConfig
     plugins: PluginsConfig
+    social_auth: SocialAuthConfig
 
 def load_config(path: str = "config.yaml") -> AppConfig:
     with open(path, "r", encoding="utf-8") as f:

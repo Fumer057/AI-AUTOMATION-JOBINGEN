@@ -27,6 +27,8 @@ class InstagramPublisherPlugin(BasePlugin):
 
     async def handle_event(self, payload: ContentState):
         logger.info("InstagramPublisherPlugin: Received RenderComplete", run_id=payload.run_id)
+        if not self.access_token or not self.ig_user_id:
+            raise ValueError("IG_ACCESS_TOKEN or IG_USER_ID environment variable is missing.")
         
         # Build the post text
         post_text = (

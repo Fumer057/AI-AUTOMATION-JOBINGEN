@@ -121,6 +121,16 @@ async def main():
 
     # 6. Test Format Performance tracking
     print("\n--- Test Case 5: Get Layout Formats Performance ---")
+    # Write a mock learning insight since get_format_performance now reads from learning_insights
+    await ops.write_learning_insights([
+        {
+            "insight_id": "template_carousel",
+            "insight_type": "template",
+            "insight_value": "8.8",
+            "confidence": 0.8,
+            "sample_size": 5
+        }
+    ])
     perf = await mem.get_format_performance()
     print(f"Layout performance: {perf}")
     assert perf.get("carousel") == 8.8

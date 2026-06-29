@@ -121,7 +121,11 @@ class NativeJSONProvider(StructuredOutputProvider):
             
         response = await self._api_call_with_backoff(_call)
         content = response.choices[0].message.content
-        parsed_object = output_model.model_validate_json(content)
+        try:
+            parsed_object = output_model.model_validate_json(content)
+        except ValidationError as e:
+            setattr(e, "_raw_response", response)
+            raise e
         
         return StrategyResult(raw_response=response, parsed_object=parsed_object, strategy=self.name, repair_attempts=0, validation_failures=0)
 
@@ -147,7 +151,11 @@ class MarkdownProvider(StructuredOutputProvider):
         content = response.choices[0].message.content
         
         extracted_json = self.extract_json_block(content)
-        parsed_object = output_model.model_validate_json(extracted_json)
+        try:
+            parsed_object = output_model.model_validate_json(extracted_json)
+        except ValidationError as e:
+            setattr(e, "_raw_response", response)
+            raise e
         
         return StrategyResult(raw_response=response, parsed_object=parsed_object, strategy=self.name, repair_attempts=0, validation_failures=0)
         
@@ -333,7 +341,6 @@ class LLMGateway:
         
         start_time = time.monotonic()
         validation_failures = 0
-        last_result: Optional[StrategyResult] = None
         last_error = None
         
         for strategy in pipeline:
@@ -349,17 +356,27 @@ class LLMGateway:
             except ValidationError as e:
                 validation_failures += 1
                 self.circuit_breaker.record_failure(model, strategy.name)
-                logger.warning(f"{strategy.name} validation failed", error=str(e), model=model)
+                logger.warning(f"{strategy.name} validation failed, attempting repair", error=str(e), model=model)
                 
-                # We have raw content but failed validation, we can trigger the RepairProvider here
-                # (unless we're out of repair retries)
-                # Store the failed raw_response in a dummy StrategyResult for the repair provider
-                failed_raw = getattr(e, "_raw_response", None) # if provider attached it
-                # Actually, the simplest way is to catch it inside the gateway loop. But since providers raise it, 
-                # we don't have the raw response unless we inject it into the exception. 
-                # Let's adjust: Provider can't easily return raw response on raise. 
-                # For this MVP, if it fails validation, we skip to the next strategy in the pipeline.
-                pass
+                failed_raw = getattr(e, "_raw_response", None)
+                if failed_raw:
+                    failed_content = failed_raw.choices[0].message.content
+                    repair_system = system_prompt + "\n\nCRITICAL: You are a JSON repair helper. Fix the provided invalid JSON structure according to the target schema instructions and the validation errors."
+                    repair_user = f"The previous response failed schema validation.\n\nINVALID JSON RESPONSE:\n{failed_content}\n\nVALIDATION ERRORS:\n{str(e)}\n\nPlease repair it and output only the corrected JSON."
+                    
+                    prev_result = StrategyResult(raw_response=failed_raw, parsed_object=None, strategy=strategy.name, repair_attempts=0, validation_failures=1)
+                    try:
+                        repair_res = await self.repair_provider.generate(
+                            repair_system, repair_user, model, output_model, temperature=0.2, max_tokens=max_tokens, timeout=timeout, previous_result=prev_result
+                        )
+                        logger.info("LLM Gateway: Successfully repaired structured JSON response!")
+                        self.circuit_breaker.record_success(model, "repair")
+                        return self._build_log(module_name, model, repair_res, start_time, validation_failures, success=True)
+                    except Exception as repair_err:
+                        logger.warning("Repair provider also failed", error=str(repair_err))
+                        last_error = f"Original ValidationError: {str(e)}. Repair failure: {str(repair_err)}"
+                else:
+                    last_error = str(e)
                 
             except Exception as e:
                 self.circuit_breaker.record_failure(model, strategy.name)

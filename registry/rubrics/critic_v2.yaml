@@ -1,0 +1,52 @@
+name: critic
+version: v2
+pass_threshold: 7.0
+criteria:
+  brand_voice:
+    weight: 0.20
+    description: "Sounds like Gen? Premium, student-first, no jargon"
+    score_guide:
+      9-10: "Unmistakably Gen. Could not be any other brand."
+      7-8: "Clearly on-brand with minor deviations."
+      5-6: "Generic but not off-brand."
+      1-4: "Off-brand or corporate-sounding."
+  hook_strength:
+    weight: 0.20
+    description: "Pattern interrupt — would someone stop scrolling?"
+    score_guide:
+      9-10: "Incredible hook, creates extreme curiosity or urgency."
+      7-8: "Decent pattern interrupt, stops the scroll."
+      5-6: "Generic headline/hook."
+      1-4: "Boring, plain, or corporate."
+  value_density:
+    weight: 0.20
+    description: "Every slide/line delivers value, no filler"
+    score_guide:
+      9-10: "Highly educational, concise, packs a punch."
+      7-8: "Provides solid tips but has slightly wordy sentences."
+      5-6: "Has some fluff or generic advice."
+      1-4: "Zero value or purely promotional copy."
+  cta_quality:
+    weight: 0.15
+    description: "Clear, specific, non-pushy call to action"
+    score_guide:
+      9-10: "Extremely natural transition, very clear action link/phrase."
+      7-8: "Obvious CTA but feels slightly generic."
+      5-6: "Pushy, overly salesy, or weak CTA."
+      1-4: "No CTA or broken logic."
+  no_cringe:
+    weight: 0.15
+    description: "No forced humor, no 'fellow kids' slang, no overused corporate emojis."
+    score_guide:
+      9-10: "Zero cringe. Hits the right tone naturally."
+      7-8: "Safe, slightly dry."
+      5-6: "Contains overused buzzwords."
+      1-4: "Uses forced slang or corporate-speak."
+  hashtag_caption:
+    weight: 0.10
+    description: "Relevant hashtags, correct caption structure and word count."
+    score_guide:
+      9-10: "Presents structured paragraphs, 3-5 high-relevance hashtags."
+      7-8: "Good formatting, standard hashtags."
+      5-6: "Messy formatting or too many hashtags."
+      1-4: "No hashtags or completely wall-of-text caption."

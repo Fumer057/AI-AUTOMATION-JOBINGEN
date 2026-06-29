@@ -172,6 +172,8 @@ class AppConfig(BaseModel):
     social_auth: SocialAuthConfig
 
 def load_config(path: str = "config.yaml") -> AppConfig:
+    from dotenv import load_dotenv
+    load_dotenv()
     with open(path, "r", encoding="utf-8") as f:
         data = yaml.safe_load(f)
     return AppConfig(**data)

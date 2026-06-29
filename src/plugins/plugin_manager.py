@@ -62,6 +62,36 @@ class PluginManager:
 
     def register_plugin(self, plugin: BasePlugin):
         name = plugin.name()
+        
+        # 1. Resolve enabled status from config
+        enabled = True
+        
+        # Map plugin name to config key if mismatched
+        config_key = name
+        if name.endswith("_publisher"):
+            config_key = name.replace("_publisher", "_publish")
+        elif name == "learning_loop":
+            config_key = "analytics_loop"
+        
+        # Check under the general plugins config block
+        plugins_config = getattr(self.config, "plugins", None)
+        if plugins_config:
+            plugin_cfg = getattr(plugins_config, config_key, None)
+            if plugin_cfg:
+                enabled = getattr(plugin_cfg, "enabled", True)
+                
+        # Check under the notifications config block
+        notifications_config = getattr(self.config, "notifications", None)
+        if notifications_config:
+            notif_name = name.replace("_notifier", "") # e.g. discord_notifier -> discord
+            notif_cfg = getattr(notifications_config, notif_name, None)
+            if notif_cfg:
+                enabled = getattr(notif_cfg, "enabled", True)
+                
+        if not enabled:
+            logger.info("Plugin is disabled in configuration", name=name)
+            return
+
         self.plugins[name] = plugin
         
         subs = plugin.subscriptions()

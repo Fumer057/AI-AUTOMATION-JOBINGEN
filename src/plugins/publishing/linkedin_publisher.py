@@ -27,6 +27,8 @@ class LinkedInPublisherPlugin(BasePlugin):
 
     async def handle_event(self, payload: ContentState):
         logger.info("LinkedInPublisherPlugin: Received RenderComplete", run_id=payload.run_id)
+        if not self.access_token or not self.author_urn:
+            raise ValueError("LINKEDIN_ACCESS_TOKEN or LINKEDIN_AUTHOR_URN environment variable is missing.")
         
         # Build the post text
         post_text = (

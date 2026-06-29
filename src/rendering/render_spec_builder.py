@@ -1,4 +1,4 @@
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from src.utils.config_loader import AppConfig
 from src.models.content_state import ContentPlan, TemplateSelection, CopyOutput, RenderSpec, SlideRenderData
 from src.foundation.asset_manager import AssetManager
@@ -45,7 +45,7 @@ class RenderSpecBuilder:
         resolved_assets = self.assets.resolve(plan.assets_needed)
         
         # 5. Build Slide Data
-        slides = self._build_slide_data(copy, template.template_type)
+        slides = self._build_slide_data(copy, template.template_type, resolved_assets)
         
         spec = RenderSpec(
             template=template.template_type,
@@ -60,7 +60,7 @@ class RenderSpecBuilder:
         )
         return spec
         
-    def _build_slide_data(self, copy: CopyOutput, template_type: str) -> List[SlideRenderData]:
+    def _build_slide_data(self, copy: CopyOutput, template_type: str, resolved_assets: Dict[str, str]) -> List[SlideRenderData]:
         """
         Maps abstract copy slides into specific layout variants depending on the template type
         and slide position (e.g. title slide vs content vs CTA).
@@ -85,15 +85,35 @@ class RenderSpecBuilder:
                 layout = "two_column"
             elif template_type == "insight_card":
                 layout = "centered_quote"
+                
+            accent = self._pick_accent(slide.slide_num)
+            icon = self._match_icon(slide.visual_note, resolved_assets)
                     
             slide_data = SlideRenderData(
                 slide_num=slide.slide_num,
                 heading=slide.heading,
                 body=slide.body,
                 layout=layout,
-                accent_color=None,
-                icon=None
+                accent_color=accent,
+                icon=icon
             )
             slides_data.append(slide_data)
             
         return slides_data
+
+    def _pick_accent(self, slide_num: int) -> str:
+        """Resolve dynamic accent colors from brand color config."""
+        colors = self.config.brand.colors
+        accent = colors.get("accent", "#3E92CC") if isinstance(colors, dict) else getattr(colors, "accent", "#3E92CC")
+        return accent
+
+    def _match_icon(self, visual_note: str, resolved_assets: Dict[str, str]) -> Optional[str]:
+        """Match icons from the resolved asset registry based on visual note description keywords."""
+        if not visual_note:
+            return None
+        note = visual_note.lower()
+        if "email" in note or "mail" in note or "letter" in note or "envelope" in note:
+            return resolved_assets.get("icon_email")
+        if "check" in note or "done" in note or "success" in note or "tick" in note or "correct" in note:
+            return resolved_assets.get("icon_check")
+        return None

@@ -25,6 +25,8 @@ class DiscordNotifierPlugin(BasePlugin):
 
     async def handle_event(self, payload: ContentState):
         logger.info("DiscordNotifierPlugin: Received RenderComplete", run_id=payload.run_id)
+        if not self.webhook_url:
+            raise ValueError("DISCORD_WEBHOOK_URL environment variable is missing.")
         
 
         try:

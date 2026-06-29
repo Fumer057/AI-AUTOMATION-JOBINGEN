@@ -19,10 +19,13 @@ class QAPass:
         registry: ArtifactRegistry,
         gateway: LLMGateway,
     ):
-        self.config = config.llm
+        self.config = config
+        self.llm_config = config.llm
+        self.critic_config = getattr(config, "critic", None)
         self.registry = registry
         self.gateway = gateway
-        self.pass_threshold = 8.0 # Minimum overall score to pass
+        # Initialize default threshold from config if available
+        self.pass_threshold = getattr(self.critic_config, "pass_threshold", 7.0) if self.critic_config else 7.0
 
     async def evaluate(
         self,
@@ -34,20 +37,24 @@ class QAPass:
         """
         Runs the QA evaluation using the LLM Gateway and returns a QAReport + metrics.
         """
-# 1. Load active QA critic prompt/rubric
+        # 1. Load active QA critic prompt
         prompt_artifact = self.registry.get("prompts", "qa_critic")
         system_prompt = prompt_artifact.content.get("system_prompt", "You are the QA Critic.")
-        rubric_version = prompt_artifact.version
         
-        # 2. Format the payload for the Critic
-        user_prompt = self._compile_eval_prompt(plan, template, copy)
+        # 2. Load active rubric v2 from registry
+        rubric_artifact = self.registry.get("rubrics", "critic")
+        rubric_data = rubric_artifact.content
+        rubric_version = rubric_artifact.version
         
-        # 3. Invoke LLM Gateway to generate QAReport
+        # Dynamic pass threshold from rubric or fallback to config
+        pass_threshold = rubric_data.get("pass_threshold", self.pass_threshold)
+        
+        # 3. Format the payload for the Critic
+        user_prompt = self._compile_eval_prompt(plan, template, copy, rubric_data, pass_threshold)
+        
+        # 4. Invoke LLM Gateway to generate QAReport
         # We use strict evaluation temperature
-        temp = self.config.temperatures.critic
-        
-        # QAReport doesn't include rubric_version and attempt in the generation (we inject those)
-        # So we create an internal Pydantic model just for the LLM output, or let the LLM generate a subset
+        temp = self.llm_config.temperatures.critic
         
         from pydantic import BaseModel
         class QAEvalResult(BaseModel):
@@ -67,10 +74,10 @@ class QAPass:
         )
         
         # Determine strict pass logic: if LLM says passed but score < threshold, fail it.
-        is_passed = eval_obj.passed and (eval_obj.overall_score >= self.pass_threshold)
+        is_passed = eval_obj.passed and (eval_obj.overall_score >= pass_threshold)
         
         # Ensure scores dictionary has expected keys
-        expected_keys = ["hook_strength", "brand_voice", "structural_compliance", "engagement_potential"]
+        expected_keys = list(rubric_data.get("criteria", {}).keys())
         scores = eval_obj.scores or {k: eval_obj.overall_score for k in expected_keys}
         
         report = QAReport(
@@ -83,7 +90,7 @@ class QAPass:
         )
         
         if not report.passed:
-            logger.warn("QA Failed", score=report.overall_score, feedback=report.feedback)
+            logger.warning("QA Failed", score=report.overall_score, feedback=report.feedback)
         else:
             logger.info("QA Passed", score=report.overall_score)
             
@@ -93,9 +100,26 @@ class QAPass:
         self,
         plan: ContentPlan,
         template: TemplateSelection,
-        copy: CopyOutput
+        copy: CopyOutput,
+        rubric_data: Dict[str, Any],
+        pass_threshold: float
     ) -> str:
-        """Format the generated copy and plan context for the evaluator."""
+        """Format the generated copy and plan context for the evaluator dynamically using the rubric."""
+        
+        criteria = rubric_data.get("criteria", {})
+        rubric_lines = []
+        for name, info in criteria.items():
+            desc = info.get("description", "")
+            weight = info.get("weight", 0.0)
+            guide = info.get("score_guide", {})
+            guide_str = ""
+            if guide:
+                guide_str = "\n".join([f"    - {k}: {v}" for k, v in guide.items()])
+            rubric_lines.append(f"- {name} (Weight: {weight}): {desc}")
+            if guide_str:
+                rubric_lines.append(f"  Score Guide:\n{guide_str}")
+        
+        rubric_instructions = "\n".join(rubric_lines)
         
         prompt_lines = [
             "EVALUATION TARGET:",
@@ -115,14 +139,11 @@ class QAPass:
             json.dumps(copy.model_dump(), indent=2),
             "",
             "--- RUBRIC & INSTRUCTIONS ---",
-            "Evaluate on a scale of 1.0 to 10.0 for the following categories:",
-            "1. hook_strength: Does the hook grab attention immediately?",
-            "2. brand_voice: Is it professional yet approachable for students?",
-            "3. structural_compliance: Does it strictly follow the slide counts and template instructions?",
-            "4. engagement_potential: Will this drive comments, saves, or clicks?",
+            "Evaluate on a scale of 1.0 to 10.0 for the following categories according to their weight and guide:",
+            rubric_instructions,
             "",
-            f"Provide an 'overall_score' (average or weighted).",
-            f"Set 'passed' to true only if the overall_score >= {self.pass_threshold} and there are NO structural errors.",
+            f"Provide an 'overall_score' (weighted average of the category scores based on the weights above).",
+            f"Set 'passed' to true only if the overall_score >= {pass_threshold} and there are NO structural errors.",
             "Provide specific, actionable 'feedback' on what to fix if it fails."
         ]
 

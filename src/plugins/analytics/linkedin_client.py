@@ -22,42 +22,31 @@ class LinkedInClient:
         Returns a list of standardized metric dictionaries.
         """
         if not self.access_token or not self.organization_id:
-            logger.warning("LinkedIn API not configured, using mock metrics for testing.")
-            # return []  # Commented out for local end-to-end testing
+            raise ValueError("LinkedIn API credentials (LINKEDIN_ACCESS_TOKEN or LINKEDIN_AUTHOR_URN) not configured.")
 
-        # Mock implementation for local testing (simulating API response)
-        # Real implementation would call:
-        # GET https://api.linkedin.com/v2/organizationalEntityShareStatistics?q=organizationalEntity&organizationalEntity=urn:li:organization:{org_id}
-        
         logger.info("LinkedInClient: Fetching recent post metrics", org_id=self.organization_id)
         
-        try:
-            # We would normally do:
-            # async with httpx.AsyncClient() as client:
-            #     resp = await client.get(f"{self.base_url}/organizationalEntityShareStatistics...", headers=self.headers)
-            #     resp.raise_for_status()
-            #     data = resp.json()
-            pass
-        except Exception as e:
-            logger.error("LinkedIn API fetch failed", error=str(e))
-            return []
-            
-        # Return a mock standardized format for the analytics ingestion to map
-        return [
-            {
-                "platform_post_id": "urn:li:share:123",
-                "impressions": 1200,
-                "likes": 45,
-                "comments": 5,
-                "shares": 2,
-                "timestamp": (datetime.utcnow() - timedelta(days=1)).isoformat()
-            },
-            {
-                "platform_post_id": "urn:li:share:456",
-                "impressions": 850,
-                "likes": 20,
-                "comments": 2,
-                "shares": 0,
-                "timestamp": (datetime.utcnow() - timedelta(days=3)).isoformat()
+        async with httpx.AsyncClient() as client:
+            org_urn = f"urn:li:organization:{self.organization_id}" if not self.organization_id.startswith("urn:") else self.organization_id
+            url = f"{self.base_url}/organizationalEntityShareStatistics"
+            params = {
+                "q": "organizationalEntity",
+                "organizationalEntity": org_urn
             }
-        ]
+            response = await client.get(url, params=params, headers=self.headers)
+            response.raise_for_status()
+            
+            data = response.json().get("elements", [])
+            results = []
+            for element in data:
+                share_urn = element.get("share")
+                stats = element.get("totalShareStatistics", {})
+                results.append({
+                    "platform_post_id": share_urn,
+                    "impressions": stats.get("clickCount", 0),
+                    "likes": stats.get("likeCount", 0),
+                    "comments": stats.get("commentCount", 0),
+                    "shares": stats.get("shareCount", 0),
+                    "timestamp": datetime.utcnow().isoformat()
+                })
+            return results

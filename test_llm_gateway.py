@@ -85,13 +85,20 @@ async def main():
     sys_fallback = "Sys Fallback"
     user_fallback = "User Fallback"
     
+    # Configure distinct fallback model for testing
+    config.llm.fallback.provider = "anthropic"
+    config.llm.fallback.model = "claude-3-5-sonnet-20240620"
+    
+    primary_model = f"{config.llm.primary.provider}/{config.llm.primary.model}"
+    fallback_model = f"{config.llm.fallback.provider}/{config.llm.fallback.model}"
+    
     # We want primary call to raise exception, and fallback call to succeed
     # We patch litellm.completion side_effect
     call_count = 0
     def side_effect(*args, **kwargs):
         nonlocal call_count
         call_count += 1
-        if kwargs.get("model") == "openai/gpt-4o":
+        if kwargs.get("model") == primary_model:
             raise RuntimeError("Primary model error!")
         return MockCompletionResponse('{"headline": "Fallback Headline", "points": ["FB1"]}')
 
@@ -105,8 +112,8 @@ async def main():
         print(f"Parsed output (fallback): {res_fb.headline}")
         print(f"Log model used: {log_fb.model}")
         assert res_fb.headline == "Fallback Headline"
-        assert log_fb.model == "anthropic/claude-3-5-sonnet-20240620"
-        assert call_count == 4 # 3 primary calls (retries) + 1 fallback call (success)
+        assert log_fb.model == fallback_model
+        assert call_count == 3 # 2 primary calls (native + markdown) + 1 fallback call (success)
 
     print("\nSUCCESS: All LLM Gateway test cases passed!")
 

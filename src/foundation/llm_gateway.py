@@ -278,15 +278,7 @@ class LLMGateway:
         primary_config = self.config.primary
         fallback_config = self.config.fallback
         
-        # --- True Offline Mock Mode Check ---
-        import os
-        if not os.environ.get("GEMINI_API_KEY") and not os.environ.get("OPENAI_API_KEY") and not os.environ.get("ANTHROPIC_API_KEY"):
-            logger.warning("[DRY RUN] No LLM API keys found. Returning mocked response for", module=module_name)
-            return self._get_mock_response(module_name, output_model), LLMCallLog(
-                module=module_name, model="mock-offline-llm", input_tokens=0, output_tokens=0,
-                cost_usd=0.0, latency_ms=10, cached=True, strategy_used="mock"
-            )
-        
+
         model = f"{primary_config.provider}/{primary_config.model}"
         
         if self._cache is not None:

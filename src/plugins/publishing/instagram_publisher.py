@@ -36,15 +36,6 @@ class InstagramPublisherPlugin(BasePlugin):
             f"{' '.join(payload.generated_copy.hashtags)}"
         )
 
-        if self.is_dry_run:
-            logger.info(
-                "[DRY RUN] InstagramPublisherPlugin: Would publish post to Instagram.",
-                run_id=payload.run_id,
-                text_preview=post_text[:100] + "...",
-                images_count=len(payload.image_paths)
-            )
-            return
-
         try:
             # Note: IG Graph API requires the images to be hosted on a public URL.
             # In a real environment, you'd upload them to an S3 bucket first.
@@ -61,16 +52,6 @@ class InstagramPublisherPlugin(BasePlugin):
                 logger.error("No images to publish to Instagram.", run_id=payload.run_id)
                 return
                 
-            # If the image path is local (doesn't start with http), log a warning
-            if not str(first_image_path).startswith("http"):
-                logger.warning(
-                    "Instagram Graph API requires public URLs for images. "
-                    "Skipping actual upload because the image is local.",
-                    image_path=first_image_path,
-                    run_id=payload.run_id
-                )
-                return
-
             async with aiohttp.ClientSession() as session:
                 # 1. Create Media Container
                 create_url = f"https://graph.facebook.com/v19.0/{self.ig_user_id}/media"

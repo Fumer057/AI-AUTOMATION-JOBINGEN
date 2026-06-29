@@ -29,6 +29,7 @@ aiosqlite>=0.19                # Async SQLite operations
 
 # --- HTTP & Networking ---
 httpx>=0.27                    # Async HTTP client for webhooks (WhatsApp, Slack)
+aiohttp>=3.9.0                  # Async HTTP client for publishers and notifier plugins
 
 # --- Logging ---
 structlog>=24.0                # Structured JSON logging

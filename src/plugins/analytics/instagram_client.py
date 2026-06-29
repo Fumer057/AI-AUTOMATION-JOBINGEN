@@ -17,28 +17,51 @@ class InstagramClient:
         Returns a list of standardized metric dictionaries.
         """
         if not self.access_token or not self.account_id:
-            logger.warning("Instagram API not configured, using mock metrics for testing.")
-            # return []
+            raise ValueError("Instagram API credentials (IG_ACCESS_TOKEN or IG_USER_ID) not configured.")
 
         logger.info("InstagramClient: Fetching recent post metrics", account_id=self.account_id)
         
-        try:
-            # We would normally do:
-            # async with httpx.AsyncClient() as client:
-            #     # First get media IDs: GET /{account_id}/media
-            #     # Then get insights per media: GET /{media_id}/insights?metric=impressions,reach,engagement
-            pass
-        except Exception as e:
-            logger.error("Instagram API fetch failed", error=str(e))
-            return []
+        async with httpx.AsyncClient() as client:
+            media_url = f"{self.base_url}/{self.account_id}/media"
+            params = {"access_token": self.access_token}
+            response = await client.get(media_url, params=params)
+            response.raise_for_status()
             
-        return [
-            {
-                "platform_post_id": "ig_media_987",
-                "impressions": 2100,
-                "likes": 120,
-                "comments": 15,
-                "shares": 8,
-                "timestamp": (datetime.utcnow() - timedelta(days=1)).isoformat()
-            }
-        ]
+            media_data = response.json().get("data", [])
+            results = []
+            
+            for media in media_data[:5]:
+                media_id = media["id"]
+                fields_url = f"{self.base_url}/{media_id}"
+                fields_params = {
+                    "fields": "id,timestamp,like_count,comments_count",
+                    "access_token": self.access_token
+                }
+                f_resp = await client.get(fields_url, params=fields_params)
+                f_resp.raise_for_status()
+                f_data = f_resp.json()
+                
+                try:
+                    insights_url = f"{self.base_url}/{media_id}/insights"
+                    insights_params = {
+                        "metric": "impressions,reach",
+                        "access_token": self.access_token
+                    }
+                    i_resp = await client.get(insights_url, params=insights_params)
+                    i_resp.raise_for_status()
+                    i_data = i_resp.json().get("data", [])
+                    insights_dict = {item["name"]: item["values"][0]["value"] for item in i_data}
+                except Exception as e:
+                    logger.warning("Failed to fetch insights for media", media_id=media_id, error=str(e))
+                    insights_dict = {"impressions": 0, "reach": 0}
+                
+                results.append({
+                    "platform_post_id": media_id,
+                    "impressions": insights_dict.get("impressions", 0),
+                    "likes": f_data.get("like_count", 0),
+                    "comments": f_data.get("comments_count", 0),
+                    "shares": 0,  # IG Graph API doesn't support shares easily
+                    "timestamp": f_data.get("timestamp")
+                })
+            
+            return results

@@ -51,18 +51,6 @@ class ImageGeneratorPlugin(BasePlugin):
         try:
             # Using litellm image generation mapping for Gemini (Google Vertex or AI Studio)
             # Make sure GEMINI_API_KEY is in env
-            api_key = os.environ.get("GEMINI_API_KEY")
-            if not api_key:
-                logger.warning("GEMINI_API_KEY not found in env! Using mock generated image for testing.")
-                # Save a dummy grey image for mock
-                with open(img_path, "wb") as f:
-                    # just a tiny 1x1 png 
-                    f.write(b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82')
-                payload.dynamic_assets["background"] = str(img_path.absolute().as_posix())
-                return
-
-            # Note: For LiteLLM to use Gemini imagen, model must be "gemini/..." or "vertex_ai/imagegeneration..."
-            # Wait, using standard litellm.image_generation
             response = litellm.image_generation(
                 prompt=image_prompt,
                 model="gemini/imagen-3.0-generate-001",
@@ -82,3 +70,4 @@ class ImageGeneratorPlugin(BasePlugin):
             
         except Exception as e:
             logger.error("ImageGeneratorPlugin: Failed to generate or download image", error=str(e))
+            raise e

@@ -34,11 +34,7 @@ class QAPass:
         """
         Runs the QA evaluation using the LLM Gateway and returns a QAReport + metrics.
         """
-        logger.info("MOCKING QA TO BYPASS RATE LIMITS")
-        report = QAReport(overall_score=10.0, passed=True, attempt=attempt, scores={"mock":10}, feedback="Mocked", rubric_version="v1")
-        log = LLMCallLog(module="qa_pass", model="mock", input_tokens=0, output_tokens=0, cost_usd=0.0, latency_ms=0, cached=True, strategy_used="none", repair_attempts=0, validation_failures=0, success=True)
-        return report, log
-        # 1. Load active QA critic prompt/rubric
+# 1. Load active QA critic prompt/rubric
         prompt_artifact = self.registry.get("prompts", "qa_critic")
         system_prompt = prompt_artifact.content.get("system_prompt", "You are the QA Critic.")
         rubric_version = prompt_artifact.version

@@ -36,15 +36,6 @@ class LinkedInPublisherPlugin(BasePlugin):
             f"{' '.join(payload.generated_copy.hashtags)}"
         )
 
-        if self.is_dry_run:
-            logger.info(
-                "[DRY RUN] LinkedInPublisherPlugin: Would publish post to LinkedIn.",
-                run_id=payload.run_id,
-                text_preview=post_text[:100] + "...",
-                images_count=len(payload.image_paths)
-            )
-            return
-
         try:
             # 1. Register Upload for each image
             image_urns = []

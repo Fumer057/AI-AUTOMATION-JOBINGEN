@@ -26,10 +26,7 @@ class DiscordNotifierPlugin(BasePlugin):
     async def handle_event(self, payload: ContentState):
         logger.info("DiscordNotifierPlugin: Received RenderComplete", run_id=payload.run_id)
         
-        if not self.webhook_url:
-            logger.warning("DISCORD_WEBHOOK_URL not set in env. Skipping notification.", run_id=payload.run_id)
-            return
-            
+
         try:
             # Build the rich embed for Discord
             description = (

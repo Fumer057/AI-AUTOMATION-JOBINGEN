@@ -172,8 +172,26 @@ class AppConfig(BaseModel):
     social_auth: SocialAuthConfig
 
 def load_config(path: str = "config.yaml") -> AppConfig:
+    import os
     from dotenv import load_dotenv
     load_dotenv()
     with open(path, "r", encoding="utf-8") as f:
         data = yaml.safe_load(f)
+        
+    # Auto-detect and adapt LLM provider dynamically based on environment keys
+    gemini_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    
+    if "llm" in data:
+        if openai_key and not gemini_key:
+            data["llm"]["primary"]["provider"] = "openai"
+            data["llm"]["primary"]["model"] = "gpt-5.5"
+            data["llm"]["fallback"]["provider"] = "openai"
+            data["llm"]["fallback"]["model"] = "gpt-5.4-mini"
+        elif gemini_key and not openai_key:
+            data["llm"]["primary"]["provider"] = "gemini"
+            data["llm"]["primary"]["model"] = "gemini-2.5-flash"
+            data["llm"]["fallback"]["provider"] = "gemini"
+            data["llm"]["fallback"]["model"] = "gemini-2.5-flash"
+            
     return AppConfig(**data)

@@ -28,14 +28,14 @@ llm:
     enabled: true
     ttl_seconds: 3600
   fallback:
-    model: gemini-2.5-flash
+    model: gemini-2.5-flash        # Set dynamically to gpt-5.4-mini if OPENAI_API_KEY is defined
     provider: gemini
   max_api_retries: 3
   max_tokens:
     carousel: 4000
     single: 2000
   primary:
-    model: gemini-2.5-flash
+    model: gemini-2.5-flash        # Set dynamically to gpt-5.5 if OPENAI_API_KEY is defined
     provider: gemini
   rate_limit:
     anthropic:

@@ -70,3 +70,23 @@ SUCCESS: Operational Store verified successfully!
 SUCCESS: Knowledge Store verified successfully!
 SUCCESS: Event Bus behaves correctly!
 ```
+
+---
+
+## Step 4: Verify LLM Provider Auto-Adaptation (Optional)
+The system is equipped with an environment key auto-detection feature. You can verify how it adapts when you define an API key.
+
+### How to execute:
+To test the OpenAI auto-adaptation (switching to `gpt-5.5` primary and `gpt-5.4-mini` fallback), run:
+```powershell
+$env:OPENAI_API_KEY="sk-test-key"; python test_config.py
+```
+
+### Expected Result:
+The test loader will automatically adapt the configuration on-the-fly and display:
+```text
+SUCCESS: Config loaded successfully!
+Engine: v4
+Primary LLM: openai / gpt-5.5
+WhatsApp Enabled: True
+```

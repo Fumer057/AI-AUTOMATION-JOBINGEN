@@ -190,8 +190,8 @@ def load_config(path: str = "config.yaml") -> AppConfig:
             data["llm"]["fallback"]["model"] = "gpt-5.4-mini"
         elif gemini_key and not openai_key:
             data["llm"]["primary"]["provider"] = "gemini"
-            data["llm"]["primary"]["model"] = "gemini-2.5-flash"
+            data["llm"]["primary"]["model"] = "gemini-3.5-flash"
             data["llm"]["fallback"]["provider"] = "gemini"
-            data["llm"]["fallback"]["model"] = "gemini-2.5-flash"
+            data["llm"]["fallback"]["model"] = "gemini-3.5-flash"
             
     return AppConfig(**data)

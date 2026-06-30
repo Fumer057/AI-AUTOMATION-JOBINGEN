@@ -1,1 +1,36 @@
-MOCK CONTENT
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 90" width="100%" height="100%">
+  <defs>
+    <!-- Brand gradients -->
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0A2463" />
+      <stop offset="60%" stop-color="#1B49B8" />
+      <stop offset="100%" stop-color="#3E92CC" />
+    </linearGradient>
+    <radialGradient id="bubbleGrad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="25%" stop-color="#CBE3FF"/>
+      <stop offset="70%" stop-color="#3E92CC"/>
+      <stop offset="100%" stop-color="#0A2463"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Letter: j -->
+  <text x="15" y="59" font-family="System-UI, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="700" font-size="44" fill="#0A2463">j</text>
+
+  <!-- Infinity Symbol (Merged o and b) -->
+  <path d="M 81,55 C 81,44 73,36 63,36 C 53,36 45,44 45,55 C 45,66 53,74 63,74 C 73,74 81,66 81,55 C 81,44 89,36 99,36 C 109,36 117,44 117,55 C 117,66 109,74 99,74 C 89,74 81,66 81,55 Z" fill="none" stroke="url(#brandGrad)" stroke-width="7" />
+  <path d="M 117,55 L 117,18" fill="none" stroke="url(#brandGrad)" stroke-width="7" stroke-linecap="round" />
+
+  <!-- Letters: i, n -->
+  <text x="126" y="59" font-family="System-UI, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="700" font-size="44" fill="#0A2463">i</text>
+  <text x="141" y="59" font-family="System-UI, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="700" font-size="44" fill="#0A2463">n</text>
+
+  <!-- Letter: g (Custom path with glossy orb inside the tail) -->
+  <path d="M 203,42 C 203,36 197,31 190,31 C 180,31 174,39 174,48 C 174,57 180,65 190,65 C 197,65 203,60 203,54 L 203,42 Z" fill="none" stroke="#0A2463" stroke-width="7" />
+  <path d="M 203,48 L 203,68 C 203,76 197,82 188,82 C 179,82 174,76 174,70" fill="none" stroke="#0A2463" stroke-width="7" stroke-linecap="round" />
+  <circle cx="188" cy="71" r="9.5" fill="url(#bubbleGrad)" />
+
+  <!-- Letters: e, n -->
+  <text x="213" y="59" font-family="System-UI, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="700" font-size="44" fill="#0A2463">e</text>
+  <text x="243" y="59" font-family="System-UI, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="700" font-size="44" fill="#0A2463">n</text>
+</svg>

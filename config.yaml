@@ -21,7 +21,7 @@ critic:
     no_cringe: 0.15
     value_density: 0.2
 engine:
-  name: JobInGen Content Engine
+  name: jobingen Content Engine
   version: 3.0.0
 llm:
   cache:

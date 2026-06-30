@@ -38,7 +38,7 @@
     "topic_id": "pro_001",
     "pillar": "Proof",
     "topic_title": "Landed Google SDE Role in 3 Months",
-    "topic_context": "Success story of a student named Aryan who used JobInGen resources. Detail his path: 200 LeetCode questions, resume refinement, mock interview prep, and direct cold outreach.",
+    "topic_context": "Success story of a student named Aryan who used jobingen resources. Detail his path: 200 LeetCode questions, resume refinement, mock interview prep, and direct cold outreach.",
     "suggested_template": "success_story"
   },
   {
@@ -51,15 +51,15 @@
   {
     "topic_id": "bra_001",
     "pillar": "Brand",
-    "topic_title": "Why We Built JobInGen",
-    "topic_context": "Our founding story. Traditional placements are broken; students send 500 resumes with 0 replies. JobInGen is designed to teach students how to build networks and proof-of-work instead of relying on luck.",
+    "topic_title": "Why We Built jobingen",
+    "topic_context": "Our founding story. Traditional placements are broken; students send 500 resumes with 0 replies. jobingen is designed to teach students how to build networks and proof-of-work instead of relying on luck.",
     "suggested_template": "insight_card"
   },
   {
     "topic_id": "bra_002",
     "pillar": "Brand",
     "topic_title": "Skills Over Degrees",
-    "topic_context": "Explain the core philosophy of JobInGen. A degree gets you in the room, but proof-of-work (projects, open source, write-ups) gets you hired. Build in public to stand out.",
+    "topic_context": "Explain the core philosophy of jobingen. A degree gets you in the room, but proof-of-work (projects, open source, write-ups) gets you hired. Build in public to stand out.",
     "suggested_template": "carousel"
   },
   {

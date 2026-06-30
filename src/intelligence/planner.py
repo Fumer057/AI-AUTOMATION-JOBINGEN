@@ -185,7 +185,7 @@ class ContentPlanner:
         mapping = {
             "Educate": "final-year students looking for interview prep tips",
             "Opportunity": "students and recent graduates actively seeking tech roles",
-            "Proof": "skeptical students who need proof that the JobInGen process works",
+            "Proof": "skeptical students who need proof that the jobingen process works",
             "Brand": "students seeking to build professional network proof-of-work",
             "Culture": "young developers and college students navigating corporate shifts"
         }
@@ -199,7 +199,7 @@ class ContentPlanner:
             "Brand": "Visit our website to view our placement programs!",
             "Culture": "Share this with a classmate who needs to see this!"
         }
-        return mapping.get(pillar, "Follow JobInGen for daily placement tips!")
+        return mapping.get(pillar, "Follow jobingen for daily placement tips!")
 
     def _determine_assets_needed(self, pillar: str) -> List[str]:
         # Always require logo and base background
